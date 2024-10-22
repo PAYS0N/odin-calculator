@@ -5,24 +5,51 @@ const updateOperatingNumbers = function() {
     }
     if (operationSelected !== null) {
         if (bDecimalMode) {
-            numberTwo = numberTwo + +this.textContent/Math.pow(10, ++decimalInputCounter);
+            if (numberTwo < 0) {
+                numberTwo = numberTwo - +this.textContent/Math.pow(10, ++decimalInputCounter);
+            }
+            else {
+                numberTwo = numberTwo + +this.textContent/Math.pow(10, ++decimalInputCounter);
+            }
         }
         else {
-            numberTwo = numberTwo*10 + +this.textContent;
+            if (numberTwo < 0) {
+                numberTwo = numberTwo*10 - +this.textContent;
+            }
+            else {
+                numberTwo = numberTwo*10 + +this.textContent;
+            }
+        }
+        if (bMakeNegative & numberTwo !== 0) {
+            numberTwo = -1 * numberTwo;
+            bMakeNegative = false;
         }
         displayValue(numberTwo);
         bOperationReady = true;
     }
     else {
         if (bDecimalMode) {
-            numberOne = numberOne + +this.textContent/Math.pow(10, ++decimalInputCounter);
+            if (numberOne < 0) {
+                numberOne = numberOne - +this.textContent/Math.pow(10, ++decimalInputCounter);
+            }
+            else {
+                numberOne = numberOne + +this.textContent/Math.pow(10, ++decimalInputCounter);
+            }
         }
         else {
-            numberOne = numberOne*10 + +this.textContent;
+            if (numberOne < 0) {
+                numberOne = numberOne*10 - +this.textContent;
+            }
+            else {
+                numberOne = numberOne*10 + +this.textContent;
+            }
+        }
+        if (bMakeNegative & numberOne !== 0) {
+            numberOne = -1 * numberOne;
+            bMakeNegative = false;
         }
         displayValue(numberOne);
     }
-    console.log(numberOne, operationSelected, numberTwo)
 }
 
 const updateOperation = function() {
@@ -46,25 +73,40 @@ const updateOperation = function() {
 }
 
 const displayValue = function(val) {
+    num = val
     if (typeof val === 'string') {
         outputArea.textContent = val;
     }
     else {
         //10000000
         //get number of decimal
-        numDecimal = String((val - Math.round(val))).length - 1;
+        let numDecimals = String((val - Math.round(val))).length - 1;
         //get number of non decimals
-        numDigits = String(Math.round(val)).length;
-        //divide up the 12 digits of space
-        availableDecimalSpace = Math.max(12 - numDigits, numDecimal > 2 ? 2 : numDigits);
-        numDecimalsToDisplay = Math.min(availableDecimalSpace, numDecimal)
-        //precision problems
-        numDecimalsToDisplay = Math.min(7, numDecimalsToDisplay);
-        numDigitsToDisplay = Math.min(12 - numDecimalsToDisplay, numDigits);
-        val = Math.round(val*Math.pow(10, numDecimalsToDisplay))/Math.pow(10, numDecimalsToDisplay);
-            if (val >= Math.pow(10, numDigitsToDisplay)) {
-                val = val.toExponential(numDigitsToDisplay-4);
+        let numDigits = String(Math.round(val)).length;
+        //divide up the space
+        if (numDecimals === 0) {
+            if (numDigits > 12) {
+                //display exponetial
+                numDigitsInEVal = String(val.toExponential()).split('+')[1].length;
+                val = val.toExponential(9-numDigitsInEVal);                    
             }
+            else {
+                //display normal
+            }
+        } 
+        else {
+            if (numDigits < 7) {
+                numDecimals = 13 - numDigits
+                numDecimals = Math.max(numDecimals, 2)
+                //precision problems
+                numDecimals = Math.min(7, numDecimals);
+                val = Math.round(val*Math.pow(10, numDecimals))/Math.pow(10, numDecimals);
+            }
+            else{
+                let numDigitsInEVal = String(val.toExponential()).split('+')[1].length;
+                val = val.toExponential(9-numDigitsInEVal);                    
+            }
+        }
         outputArea.textContent = val;
     }
 }
@@ -145,6 +187,29 @@ const changeDecimalMode = function() {
     bDecimalMode = true;
 }
 
+const negateValue = function() {
+    if (operationSelected !== null) {
+        if (numberTwo === 0) {
+            bMakeNegative = true;
+            displayValue('-');
+        }
+        else {
+            numberTwo = -1 * numberTwo;
+            displayValue(numberTwo);    
+        }
+    }
+    else {
+        if (numberOne === 0) {
+            bMakeNegative = true;
+            displayValue('-');
+        }
+        else {
+            numberOne = -1 * numberOne;
+            displayValue(numberOne);    
+        }
+    }    
+}
+
 const numButtons = document.querySelectorAll(".num-button");
 numButtons.forEach(button => {
     button.addEventListener("click", updateOperatingNumbers);
@@ -164,6 +229,9 @@ clearButton.addEventListener("click", clearValues);
 const decimalButton = document.querySelector(".decimal-button");
 decimalButton.addEventListener("click", changeDecimalMode);
 
+const signButton = document.querySelector(".sign-button");
+signButton.addEventListener("click", negateValue);
+
 const outputArea = document.querySelector(".output");
 
 //start calc vars
@@ -174,3 +242,4 @@ let resetNumOne = true;
 let bOperationReady = false;
 let bDecimalMode = false;
 let decimalInputCounter = 0;
+let bMakeNegative = false;

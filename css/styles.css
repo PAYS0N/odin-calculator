@@ -53,6 +53,10 @@ body {
     width: 60px;
 }
 
+.clear-button{
+    width: 120px;
+}
+
 .big-button {
     height: 60px;
     width: 120px;
