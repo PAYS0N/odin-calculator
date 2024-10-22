@@ -24,7 +24,12 @@ const updateOperatingNumbers = function() {
             numberTwo = -1 * numberTwo;
             bMakeNegative = false;
         }
-        displayValue(numberTwo);
+        if (bDecimalMode & +this.textContent === 0) {
+            displaySpecial(decimalInputCounter, bMakeNegative, numberTwo);
+        }
+        else {
+            displayValue(numberTwo);
+        }
         bOperationReady = true;
     }
     else {
@@ -48,9 +53,14 @@ const updateOperatingNumbers = function() {
             numberOne = -1 * numberOne;
             bMakeNegative = false;
         }
-        console.log(numberOne, operationSelected, numberTwo);
-        displayValue(numberOne);
+        if (bDecimalMode & +this.textContent === 0) {
+            displaySpecial(decimalInputCounter, bMakeNegative, numberOne);
+        }
+        else {
+            displayValue(numberOne);
+        }
     }
+    // console.log(numberOne, operationSelected, numberTwo);
 }
 
 const updateOperation = function() {
@@ -79,7 +89,7 @@ const displayValue = function(val) {
     }
     else {
         num = val;
-        strVal = val.toPrecision(10);
+        let strVal = val.toPrecision(10);
         val = +strVal;
         if (strVal.includes('e')) {
             numDigitsInEVal = String(val.toExponential()).split('e')[1].length;
@@ -115,6 +125,33 @@ const displayValue = function(val) {
             }
         }
         outputArea.textContent = val;
+    }
+}
+
+const displaySpecial = function(numDigitsAfterDecimal, bNeg, initVal) {
+    let strVal = initVal.toPrecision(15);
+    strVal = strVal.replace(/0*$/, '');
+    if (strVal.length > 10) {
+        displayValue(initVal);
+    }
+    else {
+        outputArea.textContent = '';
+        if (!strVal.includes('-') & bNeg) {
+            outputArea.textContent += '-'
+        }
+        if (strVal.includes('.')) {
+            outputArea.textContent += strVal
+            for (let i = 0; i < Math.min(numDigitsAfterDecimal - (strVal.split('.')[1].length), 12 - strVal.length); i++) {
+                outputArea.textContent += '0';
+            }
+        }
+        else {
+            outputArea.textContent += strVal
+            outputArea.textContent += '.'
+            for (let i = 0; i < numDigitsAfterDecimal; i++) {
+                outputArea.textContent += '0';
+            }
+        }            
     }
 }
 
@@ -170,10 +207,6 @@ const clearValues = function() {
     displayValue(0);
 }
 
-const deleteInput = function() {
-    //remember decimals
-}
-
 const changeDecimalMode = function() {
     if (!bDecimalMode) {
         if (resetNumOne) {
@@ -190,6 +223,9 @@ const changeDecimalMode = function() {
             displayValue(numberOne);
             outputArea.textContent += '.';
         }    
+        if(bMakeNegative) {
+            outputArea.textContent = '-' + outputArea.textContent;
+        }
     }
     bDecimalMode = true;
 }
