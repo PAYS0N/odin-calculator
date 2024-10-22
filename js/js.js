@@ -48,6 +48,7 @@ const updateOperatingNumbers = function() {
             numberOne = -1 * numberOne;
             bMakeNegative = false;
         }
+        console.log(numberOne, operationSelected, numberTwo);
         displayValue(numberOne);
     }
 }
@@ -73,38 +74,44 @@ const updateOperation = function() {
 }
 
 const displayValue = function(val) {
-    num = val
     if (typeof val === 'string') {
         outputArea.textContent = val;
     }
     else {
-        //10000000
-        //get number of decimal
-        let numDecimals = String((val - Math.round(val))).length - 1;
-        //get number of non decimals
-        let numDigits = String(Math.round(val)).length;
-        //divide up the space
-        if (numDecimals === 0) {
-            if (numDigits > 12) {
-                //display exponetial
-                numDigitsInEVal = String(val.toExponential()).split('+')[1].length;
-                val = val.toExponential(9-numDigitsInEVal);                    
+        num = val;
+        strVal = val.toPrecision(10);
+        val = +strVal;
+        if (strVal.includes('e')) {
+            numDigitsInEVal = String(val.toExponential()).split('e')[1].length;
+            val = val.toExponential(10-numDigitsInEVal);
+        }
+        else {
+            decimalStr = strVal.split('.')[1];
+            if(decimalStr === undefined) {
+                numDecimals = 0;
             }
             else {
-                //display normal
+                numDecimals = decimalStr.replace(/0*$/, '').length;
             }
-        } 
-        else {
-            if (numDigits < 7) {
-                numDecimals = 13 - numDigits
-                numDecimals = Math.max(numDecimals, 2)
-                //precision problems
-                numDecimals = Math.min(7, numDecimals);
-                val = Math.round(val*Math.pow(10, numDecimals))/Math.pow(10, numDecimals);
+            //get number of non decimals
+            numDigits = strVal.split('.')[0].length;
+            //divide up the space
+            if (numDigits > 11) {
+                //display exponetial
+                numDigitsInEVal = String(val.toExponential()).split('e')[1].length;
+                val = val.toExponential(10-numDigitsInEVal);                    
             }
-            else{
-                let numDigitsInEVal = String(val.toExponential()).split('+')[1].length;
-                val = val.toExponential(9-numDigitsInEVal);                    
+            else {
+                if (numDigits === 0 & numDecimals > 11) {
+                    //display small number
+                    numDigitsInEVal = String(val.toExponential()).split('e')[1].length;
+                    val = val.toExponential(10-numDigitsInEVal);
+                }
+                else{
+                    //split space
+                    numDecimals = 13 - numDigits
+                    val = Math.round(val*Math.pow(10, numDecimals))/Math.pow(10, numDecimals);
+                }    
             }
         }
         outputArea.textContent = val;
