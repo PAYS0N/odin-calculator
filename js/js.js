@@ -117,6 +117,7 @@ const clearValues = function() {
     operationSelected = null;
     numberTwo = 0;
     bDecimalMode = false;
+    decimalInputCounter = 0;
     displayValue(0);
 }
 
